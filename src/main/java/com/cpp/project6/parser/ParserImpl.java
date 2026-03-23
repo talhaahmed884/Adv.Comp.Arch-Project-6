@@ -33,8 +33,14 @@ public class ParserImpl implements Parser {
         this.commandsListCounter++;
     }
 
+    @Override
     public String getCurrentCommand() {
         return this.commandsList.get(this.commandsListCounter);
+    }
+
+    @Override
+    public void resetCommandListCounter() {
+        this.commandsListCounter = 0;
     }
 
     @Override
@@ -54,7 +60,7 @@ public class ParserImpl implements Parser {
 
     @Override
     public String symbol() {
-        String regex = "";
+        String regex;
 
         if (this.commandType().equals(CommandType.L_COMMAND.toString())) {
             regex = "\\((.*?)\\)";
