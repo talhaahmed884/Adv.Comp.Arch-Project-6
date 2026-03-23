@@ -15,7 +15,7 @@ public class CommandCleanserImpl implements CommandCleanser {
             }
 
             StringBuilder commandBuilder = new StringBuilder();
-            for (int i = 1; i < command.length(); i++) {
+            for (int i = 0; i < command.length(); i++) {
                 if (command.charAt(i) != '/') {
                     commandBuilder.append(command.charAt(i));
                 }
