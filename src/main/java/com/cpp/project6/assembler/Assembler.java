@@ -8,11 +8,11 @@ import com.cpp.project6.parser.ParserImpl;
 import com.cpp.project6.symbolTable.SymbolTable;
 import com.cpp.project6.symbolTable.SymbolTableImpl;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -30,7 +30,7 @@ public class Assembler {
         this.symbolTable = new SymbolTableImpl();
         this.assembledCode = new ArrayList<>();
 
-        this.targetFileName = FilenameUtils.getBaseName(fileName) + ".hack";
+        this.targetFileName = FilenameUtils.getPath(fileName) + FilenameUtils.getBaseName(fileName) + ".hack";
     }
 
     public void firstPass() {
@@ -57,15 +57,13 @@ public class Assembler {
                     int address = symbolTable.getAddress(parser.symbol());
                     assembledCode.add(convertToBinary(String.valueOf(address)));
                 } else {
-                    if (isAlphabetic(parser.symbol())) {
+                    if (StringUtils.isNumeric(parser.symbol())) {
+                        assembledCode.add(convertToBinary(parser.symbol()));
+                    } else {
                         symbolTable.addEntry(parser.symbol(), ramAddress);
                         assembledCode.add(convertToBinary(String.valueOf(ramAddress)));
 
                         ramAddress++;
-                    } else if (isNumeric(parser.symbol())) {
-                        assembledCode.add(convertToBinary(parser.symbol()));
-                    } else {
-                        throw new InvalidParameterException("Invalid command type");
                     }
                 }
             } else if (Objects.equals(parser.commandType(), CommandType.C_COMMAND.toString())) {
@@ -82,9 +80,14 @@ public class Assembler {
     public void writeToTargetFile() throws IOException {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(this.targetFileName, false));
-            for (String code : assembledCode) {
-                writer.write(code);
-                writer.newLine();
+
+
+            for (int i = 0; i < assembledCode.size(); i++) {
+                writer.write(assembledCode.get(i));
+
+                if (i != assembledCode.size() - 1) {
+                    writer.newLine();
+                }
             }
             writer.close();
         } catch (Exception e) {
@@ -99,13 +102,5 @@ public class Assembler {
         }
 
         return binaryValue.toString();
-    }
-
-    private boolean isAlphabetic(String str) {
-        return str != null && !str.isEmpty() && str.chars().allMatch(Character::isLetter);
-    }
-
-    private boolean isNumeric(String str) {
-        return str != null && !str.isEmpty() && str.chars().allMatch(Character::isDigit);
     }
 }
